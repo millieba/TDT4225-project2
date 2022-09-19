@@ -1,5 +1,6 @@
 from DbConnector import DbConnector
 from tabulate import tabulate
+import pandas as pd
 
 
 class ExampleProgram:
