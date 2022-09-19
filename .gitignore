@@ -2,6 +2,11 @@
 # Files to be ignored by git.
 ##
 
+# Dataset
+dataset
+dataset.zip
+*.pdf
+
 # Environment files
 .env
 
@@ -11,3 +16,6 @@ venv
 
 # Python cache
 __pycache__
+
+# MACOSX
+__MACOSX

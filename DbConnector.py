@@ -8,16 +8,18 @@ class DbConnector:
     while PORT is optional and should be 3306.
 
     Example:
-    HOST = "tdt4225-00.idi.ntnu.no" // Your server IP address/domain name
-    DATABASE = "db" // Database name, if you just want to connect to MySQL server, leave it empty
-    USERNAME = "user" // This is the user you created and added privileges for
-    PASSWORD = "password" // The password you set for said user
+    Read values from .env file.
+
+    HOST = ${HOST} // Your server IP address/domain name
+    DATABASE = ${DATABASE} // Database name, if you just want to connect to MySQL server, leave it empty
+    USER = ${MYSQL_USER} // This is the user you created and added privileges for
+    PASSWORD = ${PASSWORD} // The password you set for said user
     """
 
     def __init__(self,
                  HOST=config('HOST'),
                  DATABASE=config('DATABASE'),
-                 USER=config('USERNAME'),
+                 USER=config('MYSQL_USER'),
                  PASSWORD=config('PASSWORD')):
         # Connect to the database
         try:
@@ -29,16 +31,16 @@ class DbConnector:
         self.cursor = self.db_connection.cursor()
 
         print("Connected to:", self.db_connection.get_server_info())
-        # get database information
+        # Get database information
         self.cursor.execute("select database();")
         database_name = self.cursor.fetchone()
         print("You are connected to the database:", database_name)
         print("-----------------------------------------------\n")
 
     def close_connection(self):
-        # close the cursor
+        # Close the cursor
         self.cursor.close()
-        # close the DB connection
+        # Close the DB connection
         self.db_connection.close()
         print("\n-----------------------------------------------")
         print("Connection to %s is closed" % self.db_connection.get_server_info())
