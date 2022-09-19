@@ -1,6 +1,7 @@
 from DbConnector import DbConnector
 from tabulate import tabulate
 import pandas as pd
+import os
 
 
 class ExampleProgram:
@@ -49,11 +50,29 @@ class ExampleProgram:
         rows = self.cursor.fetchall()
         print(tabulate(rows, headers=self.cursor.column_names))
 
+    # Code based on https://heremaps.github.io/pptk/tutorials/viewer/geolife.html 
+    def read_plt(self):
+        dataset_root = "assignment-2/dataset/Data"
+        for user in os.listdir(dataset_root):
+            if (user=="001"):
+                user_dir = f'{dataset_root}/{user}/{"Trajectory"}'
+
+                for activity in os.listdir(user_dir):
+                    plt_path = f'{user_dir}/{activity}'
+                    file = pd.read_csv(plt_path, skiprows=6, header=None, parse_dates=[[5, 6]], infer_datetime_format=True)
+
+                    if(len(file.index)>100 and len(file.index)<200):
+                        print(activity)
+                        file.rename(inplace=True, columns={'5_6': 'time', 0: 'lat', 1: 'lon', 3: 'alt'})
+                        file.drop(inplace=True, columns=[2,4])
+                        print(file)
+
 
 def main():
     program = None
     try:
         program = ExampleProgram()
+        program.read_plt()
         program.create_table(table_name="Person")
         program.insert_data(table_name="Person")
         _ = program.fetch_data(table_name="Person")
