@@ -63,7 +63,7 @@ def main():
             table_name="User",
             fields="""
             id VARCHAR(255) NOT NULL PRIMARY KEY,
-            has_boolean BIT NOT NULL
+            has_labels BIT NOT NULL
             """
         )
         program.create_table(
@@ -87,7 +87,7 @@ def main():
             lon DOUBLE,
             altitude INT,
             date_days DOUBLE,
-            end_date_time DATETIME
+            date_time DATETIME
             """
         )
 
