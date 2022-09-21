@@ -4,20 +4,17 @@ import pandas as pd
 import os
 
 
-class ExampleProgram:
+class MainProgram:
 
     def __init__(self):
         self.connection = DbConnector()
         self.db_connection = self.connection.db_connection
         self.cursor = self.connection.cursor
 
-    def create_table(self, table_name):
-        query = """CREATE TABLE IF NOT EXISTS %s (
-                   id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-                   name VARCHAR(30))
-                """
+    def create_table(self, table_name, fields):
+        query = "CREATE TABLE IF NOT EXISTS %s (%s)"
         # This adds table_name to the %s variable and executes the query
-        self.cursor.execute(query % table_name)
+        self.cursor.execute(query % (table_name, fields))
         self.db_connection.commit()
 
     def insert_data(self, table_name):
@@ -44,6 +41,12 @@ class ExampleProgram:
         print("Dropping table %s..." % table_name)
         query = "DROP TABLE %s"
         self.cursor.execute(query % table_name)
+    
+    def show_table_details(self, table_name):
+        query = "DESCRIBE %s"
+        self.cursor.execute(query % table_name)
+        rows = self.cursor.fetchall()
+        print(tabulate(rows, headers=self.cursor.column_names))
 
     def show_tables(self):
         self.cursor.execute("SHOW TABLES")
@@ -71,7 +74,7 @@ class ExampleProgram:
 def main():
     program = None
     try:
-        program = ExampleProgram()
+        program = MainProgram()
         program.read_plt()
         program.create_table(table_name="Person")
         program.insert_data(table_name="Person")
@@ -79,6 +82,45 @@ def main():
         program.drop_table(table_name="Person")
         # Check that the table is dropped
         program.show_tables()
+        
+
+        # Create DB tables
+        
+        program.create_table(
+            table_name="User",
+            fields="""
+            id VARCHAR(255) NOT NULL PRIMARY KEY,
+            has_labels BIT NOT NULL
+            """
+        )
+        program.create_table(
+            table_name="Activity",
+            fields="""
+            id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+            user_id VARCHAR(255) NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+            transportation_mode VARCHAR(255),
+            start_date_time DATETIME,
+            end_date_time DATETIME
+            """
+        )
+        program.create_table(
+            table_name="TrackPoint",
+            fields="""
+            id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+            activity_id INT NOT NULL,
+            FOREIGN KEY (activity_id) REFERENCES Activity(id) ON DELETE CASCADE,
+            lat DOUBLE,
+            lon DOUBLE,
+            altitude INT,
+            date_days DOUBLE,
+            date_time DATETIME
+            """
+        )
+
+        program.show_table_details(table_name="User")
+        program.show_table_details(table_name="Activity")
+        program.show_table_details(table_name="TrackPoint")
     except Exception as e:
         print("ERROR: Failed to use database:", e)
     finally:
