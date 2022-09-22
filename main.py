@@ -65,7 +65,7 @@ class MainProgram:
         print(os.path.join(dataset_path, 'labeled_ids.txt'))
 
         # Read labeled_ids.txt file
-        labeled_ids = pd.read_csv(os.path.join(dataset_path, 'labeled_ids.txt'), delim_whitespace=True, header=None, dtype=str)
+        labeled_ids = pd.read_csv(f'{dataset_path}/labeled_ids.txt', delim_whitespace=True, header=None, dtype=str)
 
         subfolders = os.listdir(f'{dataset_path}/Data')
         for i, user in enumerate(subfolders):
@@ -97,7 +97,7 @@ class MainProgram:
 
                     if user in labeled_ids.values:
                         # Read labels.txt file
-                        labels = pd.read_csv(os.path.join(os.path.basename(os.path.dirname(user_dir)), 'labels.txt'), delim_whitespace=True, header=None, nfer_datetime_format=True)
+                        labels = pd.read_csv(f'{user_dir}/labels.txt', delim_whitespace=True, header=None, nfer_datetime_format=True)
 
                         # Check if start_time and end_time matches
 
