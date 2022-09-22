@@ -61,10 +61,13 @@ class MainProgram:
 
     # Code based on https://heremaps.github.io/pptk/tutorials/viewer/geolife.html 
     def insert_dataset(self, dataset_path):
-        # Read labeled_ids.txt file
-        labeled_ids = pd.read_csv(os.path.join(os.path.basename(os.path.dirname(dataset_path)), 'labeled_ids.txt'), delim_whitespace=True, header=None, dtype=str)
 
-        subfolders = os.listdir(dataset_path)
+        print(os.path.join(dataset_path, 'labeled_ids.txt'))
+
+        # Read labeled_ids.txt file
+        labeled_ids = pd.read_csv(os.path.join(dataset_path, 'labeled_ids.txt'), delim_whitespace=True, header=None, dtype=str)
+
+        subfolders = os.listdir(f'{dataset_path}/Data')
         for i, user in enumerate(subfolders):
             print(f'[{i + 1}/{len(subfolders)}] Inserting User: {user}')
 
@@ -74,7 +77,7 @@ class MainProgram:
             else:
                 self.insert_user(user, 0)
             
-            user_dir = f'{dataset_path}/{user}/{"Trajectory"}'
+            user_dir = f'{dataset_path}/Data/{user}/{"Trajectory"}'
 
             # Iterate through all activities for a specific user
             for activity in os.listdir(user_dir):
@@ -89,6 +92,8 @@ class MainProgram:
                     # Fetch start and end time for the activity
                     start_date_time = file.head(1)['time']
                     end_date_time = file.tail(1)['time']
+
+                    print()
 
                     if user in labeled_ids.values:
                         # Read labels.txt file
