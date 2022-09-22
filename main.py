@@ -2,6 +2,7 @@ from DbConnector import DbConnector
 from tabulate import tabulate
 import pandas as pd
 import os
+import datetime
 from decouple import config
 
 class MainProgram:
@@ -23,7 +24,7 @@ class MainProgram:
         self.db_connection.commit()
     
     def insert_activity(self, user_id, transportation_mode, start_date_time, end_date_time):
-        query = "INSERT INTO Activity (user_id, transportation_mode, start_date_time, end_date_time) VALUES ('%s', '%s', %s, %s)"
+        query = "INSERT INTO Activity (user_id, transportation_mode, start_date_time, end_date_time) VALUES ('%s', '%s', '%s', '%s')"
         self.cursor.execute(query % (user_id, transportation_mode, start_date_time, end_date_time))
         self.db_connection.commit()
     
@@ -90,18 +91,18 @@ class MainProgram:
                     file.drop(inplace=True, columns=[2,4])
                     
                     # Fetch start and end time for the activity
-                    start_date_time = file.head(1)['time']
-                    end_date_time = file.tail(1)['time']
-
-                    print()
+                    start_date_time = pd.to_datetime(file.head(1)['time'].values[0], format="%Y/%m/%d %H:%M:%S")
+                    end_date_time = pd.to_datetime(file.tail(1)['time'].values[0], format="%Y/%m/%d %H:%M:%S")
 
                     if user in labeled_ids.values:
                         # Read labels.txt file
-                        labels = pd.read_csv(f'{user_dir}/labels.txt', delim_whitespace=True, header=None, nfer_datetime_format=True)
+                        labels = pd.read_csv(f'{os.path.dirname(user_dir)}/labels.txt', delim_whitespace=True, header=None, infer_datetime_format=True)
 
                         # Check if start_time and end_time matches
 
                         # Get transportation_mode
+
+                        self.insert_activity(user, None, start_date_time, end_date_time)
                     else:
                         self.insert_activity(user, None, start_date_time, end_date_time)
 
@@ -152,10 +153,7 @@ def main():
         program.insert_dataset(config('DATASET_PATH'))
 
         program.fetch_data("User")
-
-        program.drop_table("TrackPoint")
-        program.drop_table("Activity")
-        program.drop_table("User")
+        program.fetch_data("Activity")
 
     except Exception as e:
         print("ERROR: Failed to use database:", e)
