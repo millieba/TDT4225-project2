@@ -2,7 +2,7 @@ from DbConnector import DbConnector
 from tabulate import tabulate
 import pandas as pd
 import os
-import datetime
+from tqdm import tqdm
 from decouple import config
 
 class MainProgram:
@@ -10,6 +10,7 @@ class MainProgram:
     def __init__(self):
         self.connection = DbConnector()
         self.db_connection = self.connection.db_connection
+        self.db_connection.autocommit = False
         self.cursor = self.connection.cursor
 
     def create_table(self, table_name, fields):
@@ -24,21 +25,31 @@ class MainProgram:
         self.db_connection.commit()
     
     def insert_activity(self, user_id, transportation_mode, start_date_time, end_date_time):
-        query = "INSERT INTO Activity (user_id, transportation_mode, start_date_time, end_date_time) VALUES ('%s', '%s', '%s', '%s')"
-        self.cursor.execute(query % (user_id, transportation_mode, start_date_time, end_date_time))
-        self.db_connection.commit()
+        # Insert NULL to the database if no transportation_mode, by not treating it as a string in the statement
+        if transportation_mode == 'NULL':
+            query = "INSERT INTO Activity (user_id, transportation_mode, start_date_time, end_date_time) VALUES ('%s', %s, '%s', '%s')"
+            self.cursor.execute(query % (user_id, transportation_mode, start_date_time, end_date_time))
+            self.db_connection.commit()
+        else:
+            query = "INSERT INTO Activity (user_id, transportation_mode, start_date_time, end_date_time) VALUES ('%s', '%s', '%s', '%s')"
+            self.cursor.execute(query % (user_id, transportation_mode, start_date_time, end_date_time))
+            self.db_connection.commit()
     
-    def insert_track_point(self, activity_id, lat, lon, altitude, date_days, date_time):
-        query = "INSERT INTO TrackPoint (activity_id, lat, lon, altitude, date_days, date_time) VALUES (%s, %s, %s, %s, %s, %s)"
-        self.cursor.execute(query % (activity_id, lat, lon, altitude, date_days, date_time))
+    def insert_track_points_batch(self, values):
+        query = "INSERT INTO TrackPoint (date_time, lat, lon, altitude, date_days, activity_id) VALUES (%s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE date_time = VALUES(date_time), lat = VALUES(lat), lon = VALUES(lon), altitude = VALUES(altitude), date_days = VALUES(date_days), activity_id = VALUES(activity_id)"
+        self.cursor.executemany(query, values)
         self.db_connection.commit()
+
+    def fetch_last_insert_id(self):
+        query = "SELECT @id:=LAST_INSERT_ID()"
+        self.cursor.execute(query)
+        id = self.cursor.fetchone()[0]
+        return id
 
     def fetch_data(self, table_name):
         query = "SELECT * FROM %s"
         self.cursor.execute(query % table_name)
         rows = self.cursor.fetchall()
-        # print("Data from table %s, raw format:" % table_name)
-        # print(rows)
         # Using tabulate to show the table in a nice way
         print("Data from table %s, tabulated:" % table_name)
         print(tabulate(rows, headers=self.cursor.column_names))
@@ -63,8 +74,6 @@ class MainProgram:
     # Code based on https://heremaps.github.io/pptk/tutorials/viewer/geolife.html 
     def insert_dataset(self, dataset_path):
 
-        print(os.path.join(dataset_path, 'labeled_ids.txt'))
-
         # Read labeled_ids.txt file
         labeled_ids = pd.read_csv(f'{dataset_path}/labeled_ids.txt', delim_whitespace=True, header=None, dtype=str)
 
@@ -81,30 +90,45 @@ class MainProgram:
             user_dir = f'{dataset_path}/Data/{user}/{"Trajectory"}'
 
             # Iterate through all activities for a specific user
-            for activity in os.listdir(user_dir):
+            for activity in tqdm(os.listdir(user_dir)):
                 plt_path = f'{user_dir}/{activity}'
                 file = pd.read_csv(plt_path, skiprows=6, header=None, parse_dates=[[5, 6]], infer_datetime_format=True)
 
                 # Only insert activities with less than or equal 2500 trackpoints
                 if(len(file.index) <= 2500):
-                    file.rename(inplace=True, columns={'5_6': 'time', 0: 'lat', 1: 'lon', 3: 'alt'})
-                    file.drop(inplace=True, columns=[2,4])
+                    # Rename columns for clarity and remove unused columns
+                    file.rename(inplace=True, columns={0: 'lat', 1: 'lon', 3: 'alt', 4: 'date_days', '5_6': 'date_time'})
+                    file.drop(inplace=True, columns=[2])
                     
                     # Fetch start and end time for the activity
-                    start_date_time = pd.to_datetime(file.head(1)['time'].values[0], format="%Y/%m/%d %H:%M:%S")
-                    end_date_time = pd.to_datetime(file.tail(1)['time'].values[0], format="%Y/%m/%d %H:%M:%S")
+                    start_date_time = pd.to_datetime(file.head(1)['date_time'].values[0], format="%Y/%m/%d %H:%M:%S")
+                    end_date_time = pd.to_datetime(file.tail(1)['date_time'].values[0], format="%Y/%m/%d %H:%M:%S")
 
                     if user in labeled_ids.values:
-                        # Read labels.txt file
-                        labels = pd.read_csv(f'{os.path.dirname(user_dir)}/labels.txt', delim_whitespace=True, header=None, infer_datetime_format=True)
+                        # Read labels.txt file and rename columns for clarity
+                        labels = pd.read_csv(f'{os.path.dirname(user_dir)}/labels.txt', delim_whitespace=True, skiprows=1, header=None, parse_dates=[[0, 1], [2, 3]], infer_datetime_format=True)
+                        labels.rename(inplace=True, columns={'0_1': 'start_date_time', '2_3': 'end_date_time', 4: 'transportation_mode'})
 
-                        # Check if start_time and end_time matches
+                        # Match start time and end time in labels
+                        matching_row = labels[((labels['start_date_time'] == start_date_time) & (labels['end_date_time'] == end_date_time))]
 
-                        # Get transportation_mode
-
-                        self.insert_activity(user, None, start_date_time, end_date_time)
+                        # Check if there is a match
+                        if len(matching_row) > 0:
+                            transportation_mode = matching_row['transportation_mode'].values[0]
+                            self.insert_activity(user, transportation_mode, start_date_time, end_date_time)
+                            activity_id = self.fetch_last_insert_id()
+                            file['activity_id'] = activity_id
+                            self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
+                        else:
+                            self.insert_activity(user, 'NULL', start_date_time, end_date_time)
+                            activity_id = self.fetch_last_insert_id()
+                            file['activity_id'] = activity_id
+                            self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
                     else:
-                        self.insert_activity(user, None, start_date_time, end_date_time)
+                        self.insert_activity(user, 'NULL', start_date_time, end_date_time)
+                        activity_id = self.fetch_last_insert_id()
+                        file['activity_id'] = activity_id
+                        self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
 
 
 def main():
@@ -146,14 +170,7 @@ def main():
             """
         )
 
-        program.show_table_details(table_name="User")
-        program.show_table_details(table_name="Activity")
-        program.show_table_details(table_name="TrackPoint")
-
         program.insert_dataset(config('DATASET_PATH'))
-
-        program.fetch_data("User")
-        program.fetch_data("Activity")
 
     except Exception as e:
         print("ERROR: Failed to use database:", e)
