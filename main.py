@@ -20,23 +20,54 @@ class MainProgram:
         self.db_connection.commit()
 
     def insert_user(self, id, has_labels):
-        query = "INSERT INTO User (id, has_labels) VALUES ('%s', %s)"
+        query = """
+                    INSERT INTO User (id, has_labels)
+                    VALUES ('%s', %s)
+                    ON DUPLICATE KEY UPDATE
+                    id = VALUES(id),
+                    has_labels = VALUES(has_labels)
+                """
         self.cursor.execute(query % (id, has_labels))
         self.db_connection.commit()
     
     def insert_activity(self, user_id, transportation_mode, start_date_time, end_date_time):
         # Insert NULL to the database if no transportation_mode, by not treating it as a string in the statement
         if transportation_mode == 'NULL':
-            query = "INSERT INTO Activity (user_id, transportation_mode, start_date_time, end_date_time) VALUES ('%s', %s, '%s', '%s')"
+            query = """
+                        INSERT INTO Activity (user_id, transportation_mode, start_date_time, end_date_time)
+                        VALUES ('%s', %s, '%s', '%s')
+                        ON DUPLICATE KEY UPDATE
+                        user_id = VALUES(user_id),
+                        transportation_mode = VALUES(transportation_mode),
+                        start_date_time = VALUES(start_date_time),
+                        end_date_time = VALUES(end_date_time)
+                    """
             self.cursor.execute(query % (user_id, transportation_mode, start_date_time, end_date_time))
             self.db_connection.commit()
         else:
-            query = "INSERT INTO Activity (user_id, transportation_mode, start_date_time, end_date_time) VALUES ('%s', '%s', '%s', '%s')"
+            query = """
+                        INSERT INTO Activity (user_id, transportation_mode, start_date_time, end_date_time)
+                        VALUES ('%s', '%s', '%s', '%s')
+                        ON DUPLICATE KEY UPDATE
+                        user_id = VALUES(user_id),
+                        transportation_mode = VALUES(transportation_mode),
+                        start_date_time = VALUES(start_date_time),
+                        end_date_time = VALUES(end_date_time)
+                    """
             self.cursor.execute(query % (user_id, transportation_mode, start_date_time, end_date_time))
             self.db_connection.commit()
     
     def insert_track_points_batch(self, values):
-        query = "INSERT INTO TrackPoint (date_time, lat, lon, altitude, date_days, activity_id) VALUES (%s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE date_time = VALUES(date_time), lat = VALUES(lat), lon = VALUES(lon), altitude = VALUES(altitude), date_days = VALUES(date_days), activity_id = VALUES(activity_id)"
+        query = """
+                    INSERT INTO TrackPoint (date_time, lat, lon, altitude, date_days, activity_id) 
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    date_time = VALUES(date_time),
+                    lat = VALUES(lat), lon = VALUES(lon),
+                    altitude = VALUES(altitude),
+                    date_days = VALUES(date_days),
+                    activity_id = VALUES(activity_id)
+                """
         self.cursor.executemany(query, values)
         self.db_connection.commit()
 
