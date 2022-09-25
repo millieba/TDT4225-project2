@@ -169,39 +169,40 @@ def main():
 
         # Create DB tables
         
-        program.create_table(
-            table_name="User",
-            fields="""
-            id VARCHAR(255) NOT NULL PRIMARY KEY,
-            has_labels BIT NOT NULL
-            """
-        )
-        program.create_table(
-            table_name="Activity",
-            fields="""
-            id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-            user_id VARCHAR(255) NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
-            transportation_mode VARCHAR(255),
-            start_date_time DATETIME,
-            end_date_time DATETIME
-            """
-        )
-        program.create_table(
-            table_name="TrackPoint",
-            fields="""
-            id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-            activity_id INT NOT NULL,
-            FOREIGN KEY (activity_id) REFERENCES Activity(id) ON DELETE CASCADE,
-            lat DOUBLE,
-            lon DOUBLE,
-            altitude INT,
-            date_days DOUBLE,
-            date_time DATETIME
-            """
-        )
+        # program.create_table(
+        #     table_name="User",
+        #     fields="""
+        #     id VARCHAR(255) NOT NULL PRIMARY KEY,
+        #     has_labels BIT NOT NULL
+        #     """
+        # )
+        # program.create_table(
+        #     table_name="Activity",
+        #     fields="""
+        #     id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+        #     user_id VARCHAR(255) NOT NULL,
+        #     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+        #     transportation_mode VARCHAR(255),
+        #     start_date_time DATETIME,
+        #     end_date_time DATETIME
+        #     """
+        # )
+        # program.create_table(
+        #     table_name="TrackPoint",
+        #     fields="""
+        #     id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+        #     activity_id INT NOT NULL,
+        #     FOREIGN KEY (activity_id) REFERENCES Activity(id) ON DELETE CASCADE,
+        #     lat DOUBLE,
+        #     lon DOUBLE,
+        #     altitude INT,
+        #     date_days DOUBLE,
+        #     date_time DATETIME
+        #     """
+        # )
 
-        program.insert_dataset(config('DATASET_PATH'))
+        # Insert data to the database
+        # program.insert_dataset(config('DATASET_PATH'))
 
     except Exception as e:
         print("ERROR: Failed to use database:", e)
