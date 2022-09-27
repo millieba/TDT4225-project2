@@ -161,11 +161,37 @@ class MainProgram:
                         file['activity_id'] = activity_id
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
 
+    def part2_task6(self):
+        # a) Find the year with the most activities. 
+        # Note: We chose to place activities into years based on start_date_time. 
+        # This is relevant because some activities are on New Years' eve 
+        query_a =   """
+                        SELECT YEAR(start_date_time) AS year, COUNT(*) as count
+                        FROM Activity
+                        GROUP BY year
+                        ORDER BY count desc
+                        LIMIT 1
+                    """
+
+        self.cursor.execute(query_a)
+        result_a = self.cursor.fetchall()
+        print("The year with most activities is", result_a[0][0], "with", result_a[0][1], "activities")
+
+        # b) Is this also the year with most recorded hours?
+        query_b =   """
+                        
+                    """
+        self.cursor.execute(query_b)
+        result_b = self.cursor.fetchall()
+        print("Number of activities tagged with each transportation mode: ", result_b)
+
+
 
 def main():
     program = None
     try:
         program = MainProgram()
+        program.part2_task6()
 
         # Create DB tables
         
