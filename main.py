@@ -162,11 +162,11 @@ class MainProgram:
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
 
     def task2_3(self):
-        print("Part 2, task 3: \n")
+        print("Part 2, task 3: \nTop 20 users with the highest number of activities in descending order.")
         query = "SELECT COUNT(id), user_id FROM Activity GROUP BY user_id ORDER BY COUNT(id) DESC LIMIT 20"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
-        print("List of all 20 most active people:", result)
+        print(tabulate(result, headers=["Number of activites", "User id"]))
 
 
 def main():
