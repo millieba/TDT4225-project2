@@ -165,15 +165,13 @@ class MainProgram:
     def part2_task1(self):
         query = """ 
                     SELECT
-                    (SELECT COUNT(*) FROM User),
-                    (SELECT COUNT(*) FROM Activity),
-                    (SELECT COUNT(*) FROM TrackPoint)
+                    (SELECT COUNT(*) AS Users FROM User),
+                    (SELECT COUNT(*) AS Activities FROM Activity),
+                    (SELECT COUNT(*) AS Trackpoints FROM TrackPoint)
                 """
         self.cursor.execute(query)
-        result = self.cursor.fetchall()[0]
-        print("Users:", result[0])
-        print("Activities:", result[1])
-        print("Trackpoints:", result[2])
+        result = self.cursor.fetchall()
+        print(tabulate(result, headers=["Users", "Activities", "Trackpoints"]))
 
 
 def main():
