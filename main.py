@@ -162,11 +162,13 @@ class MainProgram:
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
 
     def task2_3(self):
-        print("Part 2, task 3: \nTop 20 users with the highest number of activities in descending order.")
-        query = "SELECT COUNT(id), user_id FROM Activity GROUP BY user_id ORDER BY COUNT(id) DESC LIMIT 20"
+        print("Part 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
+        #query = "SELECT Activity.user_id, TrackPoint.lat, TrackPoint.lon FROM Activity JOIN TrackPoint ON Activity.id = TrackPoint.id WHERE TrackPoint.lat = '39.916'"
+        query = "SELECT TrackPoint.lat, TrackPoint.lon, Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.id = Activity.id WHERE TrackPoint.lat = 39.916 AND TrackPoint.lon = 116.397"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
-        print(tabulate(result, headers=["Number of activites", "User id"]))
+        print(tabulate(result, headers=["User id", "Latitude", "Longitude"]))
+        print("Hmm... Seems like nobodys been in the Forbidden City of Beijing.")
 
 
 def main():
