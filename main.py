@@ -161,11 +161,26 @@ class MainProgram:
                         file['activity_id'] = activity_id
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
 
+    # Find all types of transportation modes and count how many activities that are tagged with these transportation mode labels. 
+    # Do not count the rows where the mode is null.
+    def part2_task5(self):
+        query = """
+                    SELECT transportation_mode,COUNT(*) AS countedActivity
+                    FROM Activity 
+                    WHERE transportation_mode IS NOT NULL
+                    GROUP BY transportation_mode
+                    ORDER BY countedActivity desc
+                 """
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("Number of activities tagged with each transportation mode: ", result)
+
 
 def main():
     program = None
     try:
         program = MainProgram()
+        program.part2_task5()
 
         # Create DB tables
         
