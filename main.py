@@ -165,8 +165,8 @@ class MainProgram:
         print("Part 2, task 2: \n")
         query = "SELECT COUNT(id)/COUNT(DISTINCT user_id) FROM Activity"
         self.cursor.execute(query)
-        result = self.cursor.fetchall()[0]
-        print("Average number of activities per user:", result[0])
+        result = self.cursor.fetchall()
+        print(tabulate(result, headers=["Average number of activities per user"]))
 
 def main():
     program = None
