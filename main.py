@@ -161,12 +161,19 @@ class MainProgram:
                         file['activity_id'] = activity_id
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
 
+    def task2_3(self):
+        print("Part 2, task 3: \n")
+        query = "SELECT COUNT(id), user_id FROM Activity GROUP BY user_id ORDER BY COUNT(id) DESC LIMIT 20"
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("List of all 20 most active people:", result)
+
 
 def main():
     program = None
     try:
         program = MainProgram()
-
+        program.task2_3()
         # Create DB tables
         
         # program.create_table(
