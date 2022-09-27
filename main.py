@@ -161,7 +161,7 @@ class MainProgram:
                         file['activity_id'] = activity_id
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
 
-    def task2_3(self):
+    def task2_10(self):
         print("Part 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
         query = "SELECT TrackPoint.lat, TrackPoint.lon, Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.id = Activity.id WHERE TrackPoint.lat = 39.916 AND TrackPoint.lon = 116.397"
         self.cursor.execute(query)
