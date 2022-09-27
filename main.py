@@ -161,20 +161,19 @@ class MainProgram:
                         file['activity_id'] = activity_id
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
 
-    def task2_3(self):
-        print("Part 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
-        query = "SELECT TrackPoint.lat, TrackPoint.lon, Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.id = Activity.id WHERE TrackPoint.lat = 39.916 AND TrackPoint.lon = 116.397"
+    def task2_11(self):
+        print("Part 2, task 11: \nAll users with transportation_mode and their most used one")
+        query = "SELECT user_id, transportation_mode, COUNT(*) FROM Activity WHERE transportation_mode IS NOT NULL GROUP BY transportation_mode, user_id "
         self.cursor.execute(query)
         result = self.cursor.fetchall()
-        print(tabulate(result, headers=["User id", "Latitude", "Longitude"]))
-        print("Seems like none of the users tracked an activity in the Forbidden City of Beijing.")
+        print(tabulate(result, headers=["User id", "Most used transportation", "Amount of activities"]))
 
 
 def main():
     program = None
     try:
         program = MainProgram()
-        program.task2_3()
+        program.task2_11()
         # Create DB tables
         
         # program.create_table(
