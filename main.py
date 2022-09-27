@@ -166,11 +166,10 @@ class MainProgram:
         # Note: We chose to place activities into years based on start_date_time. 
         # This is relevant because some activities are on New Years' eve 
         query_a =   """
-                        SELECT YEAR(start_date_time) AS year, COUNT(*) as count
+                        SELECT YEAR(start_date_time) AS year, COUNT(*) as activityCount
                         FROM Activity
                         GROUP BY year
-                        ORDER BY count desc
-                        LIMIT 1
+                        ORDER BY activityCount desc
                     """
 
         self.cursor.execute(query_a)
@@ -179,11 +178,15 @@ class MainProgram:
 
         # b) Is this also the year with most recorded hours?
         query_b =   """
-                        
+                        SELECT YEAR(start_date_time) AS year, SUM(TIMESTAMPDIFF(HOUR, start_date_time, end_date_time)) AS hoursCount
+                        FROM Activity
+                        GROUP BY year
+                        ORDER BY hoursCount desc
                     """
+            
         self.cursor.execute(query_b)
         result_b = self.cursor.fetchall()
-        print("Number of activities tagged with each transportation mode: ", result_b)
+        print("The year with the most recorded hours is not 2008, but", result_b[0][0], "with", result_b[0][1], "hours recorded.")
 
 
 
