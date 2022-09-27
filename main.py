@@ -161,11 +161,18 @@ class MainProgram:
                         file['activity_id'] = activity_id
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
 
+    def part2_task4(self):
+        query = 'SELECT DISTINCT user_id FROM Activity WHERE transportation_mode = "taxi"'
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("Users who have taken taxi:", result)
+
 
 def main():
     program = None
     try:
         program = MainProgram()
+        program.part2_task4()
 
         # Create DB tables
         
