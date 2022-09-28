@@ -161,11 +161,20 @@ class MainProgram:
                         file['activity_id'] = activity_id
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
 
+    def task2_8(self):
+        print("Part 2, task 8: \nTop 20 users who have gained the most altitude meters.")
+        query = "SELECT user_id FROM Activity"
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print(tabulate(result, headers=["User id", "Altitude"]))
+
+
 
 def main():
     program = None
     try:
         program = MainProgram()
+        program.task2_8()
 
         # Create DB tables
         
