@@ -163,10 +163,12 @@ class MainProgram:
 
     def task2_11(self):
         print("Part 2, task 11: \nAll users with transportation_mode and their most used one")
-        query = "SELECT user_id, transportation_mode, COUNT(*) FROM Activity WHERE transportation_mode IS NOT NULL GROUP BY transportation_mode, user_id "
+        query = "WITH cte AS (SELECT user_id, transportation_mode, ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY COUNT(*) DESC) AS RowNumber, COUNT(*) AS NumberOfActivities FROM Activity WHERE transportation_mode IS NOT NULL GROUP BY user_id, transportation_mode) SELECT user_id, transportation_mode, NumberOfActivities FROM cte WHERE RowNumber = 1"
+
+
         self.cursor.execute(query)
         result = self.cursor.fetchall()
-        print(tabulate(result, headers=["User id", "Most used transportation", "Amount of activities"]))
+        print(tabulate(result, headers=["User id", "Most used transportation", "Number of activities"]))
 
 
 def main():
