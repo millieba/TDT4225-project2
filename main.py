@@ -160,12 +160,25 @@ class MainProgram:
                         activity_id = self.fetch_last_insert_id()
                         file['activity_id'] = activity_id
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
+    
+
+    def part2_task1(self):
+        query = """ 
+                    SELECT
+                    (SELECT COUNT(*) AS Users FROM User),
+                    (SELECT COUNT(*) AS Activities FROM Activity),
+                    (SELECT COUNT(*) AS Trackpoints FROM TrackPoint)
+                """
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print(tabulate(result, headers=["Users", "Activities", "Trackpoints"]))
 
 
 def main():
     program = None
     try:
         program = MainProgram()
+        program.part2_task1()
 
         # Create DB tables
         
