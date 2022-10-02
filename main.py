@@ -163,10 +163,10 @@ class MainProgram:
 
     def task2_10(self):
         print("Part 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
-        query = "SELECT TrackPoint.lat, TrackPoint.lon, Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.id = Activity.id WHERE TrackPoint.lat = 39.916 AND TrackPoint.lon = 116.397"
+        query = "SELECT TrackPoint.lat, TrackPoint.lon, Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.id = Activity.id WHERE TrackPoint.lat BETWEEN 39.915 AND 39.917 AND TrackPoint.lon BETWEEN 116.396 AND 116.398"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
-        print(tabulate(result, headers=["User id", "Latitude", "Longitude"]))
+        print(tabulate(result, headers=["Latitude", "Longitude", "User id"]))
         print("Seems like none of the users tracked an activity in the Forbidden City of Beijing.")
 
 
@@ -174,7 +174,7 @@ def main():
     program = None
     try:
         program = MainProgram()
-        program.task2_3()
+        program.task2_10()
         # Create DB tables
         
         # program.create_table(
