@@ -194,6 +194,21 @@ class MainProgram:
         print("\n---\nPart 2, task 4:\n")
         print(tabulate(result, headers=["Users who have taken taxi:"]))
 
+    # Find all types of transportation modes and count how many activities that are tagged with these transportation mode labels. 
+    # Do not count the rows where the mode is null.
+    def part2_task5(self):
+        query = """
+                    SELECT transportation_mode,COUNT(*) AS countedActivity
+                    FROM Activity 
+                    WHERE transportation_mode IS NOT NULL
+                    GROUP BY transportation_mode
+                    ORDER BY countedActivity desc
+                 """
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 5:\n")
+        print(tabulate(result, headers=["Transportation mode", "Number of activities tagged with each transportation mode:"]))
+
 
 def main():
     program = None
@@ -203,6 +218,7 @@ def main():
         program.task2_2()
         program.task2_3()
         program.part2_task4()
+        program.part2_task5()
         # Create DB tables
 
         
