@@ -160,12 +160,31 @@ class MainProgram:
                         activity_id = self.fetch_last_insert_id()
                         file['activity_id'] = activity_id
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
+    def part2_task1(self):
+        query = """ 
+                    SELECT
+                    (SELECT COUNT(*) AS Users FROM User),
+                    (SELECT COUNT(*) AS Activities FROM Activity),
+                    (SELECT COUNT(*) AS Trackpoints FROM TrackPoint)
+                """
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 1: \n")
+        print(tabulate(result, headers=["Users", "Activities", "Trackpoints"]))
+        
+    def task2_2(self):
+        query = "SELECT COUNT(id)/COUNT(DISTINCT user_id) FROM Activity"
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 2: \n")
+        print(tabulate(result, headers=["Average number of activities per user"]))
+
 
     def task2_3(self):
-        print("Part 2, task 3: \nTop 20 users with the highest number of activities in descending order.")
         query = "SELECT COUNT(id), user_id FROM Activity GROUP BY user_id ORDER BY COUNT(id) DESC LIMIT 20"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 2:\nTop 20 users with the highest number of activities in descending order.")
         print(tabulate(result, headers=["Number of activites", "User id"]))
 
 
@@ -173,8 +192,12 @@ def main():
     program = None
     try:
         program = MainProgram()
+        program.part2_task1()
+        program.task2_2()
         program.task2_3()
         # Create DB tables
+
+        
         
         # program.create_table(
         #     table_name="User",
