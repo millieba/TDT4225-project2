@@ -160,22 +160,37 @@ class MainProgram:
                         activity_id = self.fetch_last_insert_id()
                         file['activity_id'] = activity_id
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
-    
+    def part2_task1(self):
+        query = """ 
+                    SELECT
+                    (SELECT COUNT(*) AS Users FROM User),
+                    (SELECT COUNT(*) AS Activities FROM Activity),
+                    (SELECT COUNT(*) AS Trackpoints FROM TrackPoint)
+                """
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("---\nPart 2, task 1: \n")
+        print(tabulate(result, headers=["Users", "Activities", "Trackpoints"]))
+        
     def task2_2(self):
-        print("Part 2, task 2: \n")
         query = "SELECT COUNT(id)/COUNT(DISTINCT user_id) FROM Activity"
         self.cursor.execute(query)
         result = self.cursor.fetchall()[0]
+        print("---\nPart 2, task 2: \n")
         print("Average number of activities per user:", result[0])
+
+    
+
 
 def main():
     program = None
     try:
         program = MainProgram()
-
+        program.part2_task1()
+        program.task2_2()
         # Create DB tables
 
-        program.task2_2()
+        
         
         # program.create_table(
         #     table_name="User",
