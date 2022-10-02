@@ -160,22 +160,46 @@ class MainProgram:
                         activity_id = self.fetch_last_insert_id()
                         file['activity_id'] = activity_id
                         self.insert_track_points_batch(list(file.itertuples(index=False, name=None)))
+    def part2_task1(self):
+        query = """ 
+                    SELECT
+                    (SELECT COUNT(*) AS Users FROM User),
+                    (SELECT COUNT(*) AS Activities FROM Activity),
+                    (SELECT COUNT(*) AS Trackpoints FROM TrackPoint)
+                """
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 1: \n")
+        print(tabulate(result, headers=["Users", "Activities", "Trackpoints"]))
+        
+    def task2_2(self):
+        query = "SELECT COUNT(id)/COUNT(DISTINCT user_id) FROM Activity"
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 2: \n")
+        print(tabulate(result, headers=["Average number of activities per user"]))
+
+    
 
     def task2_10(self):
-        print("Part 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
         query = "SELECT TrackPoint.lat, TrackPoint.lon, Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.id = Activity.id WHERE TrackPoint.lat BETWEEN 39.915 AND 39.917 AND TrackPoint.lon BETWEEN 116.396 AND 116.398"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
         print(tabulate(result, headers=["Latitude", "Longitude", "User id"]))
-        print("Seems like none of the users tracked an activity in the Forbidden City of Beijing.")
 
 
 def main():
     program = None
     try:
         program = MainProgram()
+
+        program.part2_task1()
+        program.task2_2()        
         program.task2_10()
         # Create DB tables
+
+        
         
         # program.create_table(
         #     table_name="User",
