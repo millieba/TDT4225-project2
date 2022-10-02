@@ -184,8 +184,15 @@ class MainProgram:
         query = "SELECT COUNT(id), user_id FROM Activity GROUP BY user_id ORDER BY COUNT(id) DESC LIMIT 20"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
-        print("\n---\nPart 2, task 2:\nTop 20 users with the highest number of activities in descending order.")
+        print("\n---\nPart 2, task 3:\nTop 20 users with the highest number of activities in descending order.")
         print(tabulate(result, headers=["Number of activites", "User id"]))
+
+    def part2_task4(self):
+        query = 'SELECT DISTINCT user_id FROM Activity WHERE transportation_mode = "taxi"'
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 4:\n")
+        print(tabulate(result, headers=["Users who have taken taxi:"]))
 
 
 def main():
@@ -195,6 +202,7 @@ def main():
         program.part2_task1()
         program.task2_2()
         program.task2_3()
+        program.part2_task4()
         # Create DB tables
 
         
