@@ -334,7 +334,7 @@ class MainProgram:
         print(tabulate(result, headers=["User id", "Number of invalid activities"]))
 
     def part2_task10(self):
-        query = "SELECT DISTINCT Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.activity_id = Activity.id WHERE TrackPoint.lat BETWEEN 39.915 AND 39.918 AND TrackPoint.lon BETWEEN 116.396 AND 116.398"
+        query = "SELECT DISTINCT Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.activity_id = Activity.id WHERE TrackPoint.lat BETWEEN 39.915 AND 39.917 AND TrackPoint.lon BETWEEN 116.396 AND 116.398"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
         print("\n---\nPart 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
@@ -364,6 +364,8 @@ def main():
         program.part2_task7()
         program.part2_task8()
         program.part2_task9()
+        program.part2_task10()
+        program.part2_task11()
 
         # Create DB tables:
 
