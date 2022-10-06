@@ -209,6 +209,42 @@ class MainProgram:
         print("\n---\nPart 2, task 5:\n")
         print(tabulate(result, headers=["Transportation mode", "Number of activities tagged with each transportation mode:"]))
 
+    def part2_task8(self):
+        """
+        Find the top 20 users who have gained the most altitude in meters.
+        Ignores invalid altitude values (-777).
+        Only sums altitudes if trackpoint_n.altitude > trackpoint_n-1.altitude
+        """
+
+        query = """
+                SELECT SubTable.user_id, SubTable.gained_altitude
+                FROM (
+                    SELECT Activity.user_id,
+                    SUM(
+                        CASE WHEN 
+                            TP1.altitude NOT LIKE '%-777' AND
+                            TP2.altitude NOT LIKE '%-777'
+                        THEN (TP1.altitude - TP2.altitude) * 0.0003048
+                        ELSE 0
+                        END)
+                        AS gained_altitude
+                    FROM TrackPoint AS TP1 
+                    INNER JOIN TrackPoint AS TP2 ON TP1.activity_id = TP2.activity_id AND TP1.id+1 = TP2.id
+                    INNER JOIN Activity ON Activity.id = TP1.activity_id AND TP2.activity_id
+                    WHERE TP1.altitude > TP2.altitude
+                    GROUP BY Activity.user_id
+                ) AS SubTable
+                ORDER BY gained_altitude DESC
+                LIMIT 20
+                """
+        
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+
+        print("\n---\nPart 2, Task 8:\n")
+        print(tabulate(result, headers=["Id", "Total meters gained per user"]))
+
+
 
 def main():
     program = None
@@ -219,6 +255,7 @@ def main():
         program.task2_3()
         program.part2_task4()
         program.part2_task5()
+        program.part2_task8()
         # Create DB tables
 
         
