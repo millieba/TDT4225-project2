@@ -214,9 +214,9 @@ class MainProgram:
         query = '''
                     SELECT Activity.user_id, COUNT(DISTINCT(Activity.id))
                     FROM Activity
-                    JOIN TrackPoint as tp1 ON tp1.activity_id = Activity.id
-                    JOIN TrackPoint as tp2 ON tp1.id + 1 = Activity.id + 1
-                    WHERE TIMESTAMPDIFF(MINUTE, tp1.date_time, tp2.date_time) > 5 OR TIMESTAMPDIFF(MINUTE, tp2.date_time, tp1.date_time) > 5
+                    INNER JOIN TrackPoint as TP1 ON TP1.activity_id = Activity.id
+                    INNER JOIN TrackPoint as TP2 ON TP2.activity_id = Activity.id AND TP1.id+1 = TP2.id
+                    WHERE TIMESTAMPDIFF(MINUTE, TP1.date_time, TP2.date_time) > 5 OR TIMESTAMPDIFF(MINUTE, TP2.date_time, TP1.date_time) > 5
                     GROUP BY Activity.user_id
                 '''
         self.cursor.execute(query)
