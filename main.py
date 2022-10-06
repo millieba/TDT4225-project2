@@ -179,6 +179,88 @@ class MainProgram:
                         self.insert_track_points_batch(
                             list(file.itertuples(index=False, name=None)))
 
+
+    def part2_task1(self):
+        query = """ 
+                    SELECT
+                    (SELECT COUNT(*) AS Users FROM User),
+                    (SELECT COUNT(*) AS Activities FROM Activity),
+                    (SELECT COUNT(*) AS Trackpoints FROM TrackPoint)
+                """
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 1: \n")
+        print(tabulate(result, headers=["Users", "Activities", "Trackpoints"]))
+
+        
+    def task2_2(self):
+        query = "SELECT COUNT(id)/COUNT(DISTINCT user_id) FROM Activity"
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 2: \n")
+        print(tabulate(result, headers=["Average number of activities per user"]))
+
+
+    def task2_3(self):
+        query = "SELECT COUNT(id), user_id FROM Activity GROUP BY user_id ORDER BY COUNT(id) DESC LIMIT 20"
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 3:\nTop 20 users with the highest number of activities in descending order.")
+        print(tabulate(result, headers=["Number of activites", "User id"]))
+
+    def part2_task4(self):
+        query = 'SELECT DISTINCT user_id FROM Activity WHERE transportation_mode = "taxi"'
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 4:\n")
+        print(tabulate(result, headers=["Users who have taken taxi:"]))
+
+    # Find all types of transportation modes and count how many activities that are tagged with these transportation mode labels. 
+    # Do not count the rows where the mode is null.
+    def part2_task5(self):
+        query = """
+                    SELECT transportation_mode,COUNT(*) AS countedActivity
+                    FROM Activity 
+                    WHERE transportation_mode IS NOT NULL
+                    GROUP BY transportation_mode
+                    ORDER BY countedActivity desc
+                 """
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 5:\n")
+        print(tabulate(result, headers=["Transportation mode", "Number of activities tagged with each transportation mode:"]))
+
+    def part2_task6(self):
+        # a) Find the year with the most activities. 
+        # Note: We chose to place activities into years based on start_date_time. 
+        # This is relevant because some activities are on New Years' eve 
+        query_a =   """
+                        SELECT YEAR(start_date_time) AS year, COUNT(*) as activityCount
+                        FROM Activity
+                        GROUP BY year
+                        ORDER BY activityCount desc
+                        LIMIT 1
+                    """
+
+        self.cursor.execute(query_a)
+        result_a = self.cursor.fetchall()
+        print("\n---\nPart 2, task 6a: \n")
+        print("The year with most activities is", result_a[0][0], "with", result_a[0][1], "activities")
+
+        # b) Is this also the year with most recorded hours?
+        query_b =   """
+                        SELECT YEAR(start_date_time) AS year, SUM(TIMESTAMPDIFF(HOUR, start_date_time, end_date_time)) AS hoursCount
+                        FROM Activity
+                        GROUP BY year
+                        ORDER BY hoursCount desc
+                        LIMIT 1
+                    """
+            
+        self.cursor.execute(query_b)
+        print("\n---\nPart 2, task 6b: \n")
+        result_b = self.cursor.fetchall()
+        print("The year with the most recorded hours is not 2008, but", result_b[0][0], "with", result_b[0][1], "hours recorded.")
+
     # Find the total distance (in km) walked in 2008, by user with id=112
     def part2_task7(self):
         query = """
@@ -190,22 +272,31 @@ class MainProgram:
 
         self.cursor.execute(query)
         result = self.cursor.fetchall()
-        print(tabulate(result, headers=["Trackpoint latitude", "Trackpoint longitude"]))
+        print("\n---\nPart 2, task 7: \n")
+        #print(tabulate(result, headers=["Trackpoint latitude", "Trackpoint longitude"]))
 
         totalDistance = 0
         for trackpoint in range(0, len(result)-1):
             fromLoc = (result[trackpoint][0], result[trackpoint][1])
             toLoc = (result[trackpoint + 1][0], result[trackpoint + 1][1])
             totalDistance += haversine(fromLoc, toLoc) 
-        print(round(totalDistance), 'km')
+        print("User with id=112 walked", round(totalDistance), 'km in 2008')
+
 
 def main():
     program = None
     try:
         program = MainProgram()
+        program.part2_task1()
+        program.task2_2()
+        program.task2_3()
+        program.part2_task4()
+        program.part2_task5()
+        program.part2_task6()
         program.part2_task7()
-
         # Create DB tables
+
+        
         
         # program.create_table(
         #     table_name="User",
