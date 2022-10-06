@@ -200,6 +200,7 @@ class MainProgram:
         print("\n---\nPart 2, task 2: \n")
         print(tabulate(result, headers=["Average number of activities per user"]))
 
+
     def task2_3(self):
         query = "SELECT COUNT(id), user_id FROM Activity GROUP BY user_id ORDER BY COUNT(id) DESC LIMIT 20"
         self.cursor.execute(query)
@@ -207,12 +208,14 @@ class MainProgram:
         print("\n---\nPart 2, task 3:\nTop 20 users with the highest number of activities in descending order.")
         print(tabulate(result, headers=["Number of activites", "User id"]))
 
+
     def part2_task4(self):
         query = 'SELECT DISTINCT user_id FROM Activity WHERE transportation_mode = "taxi"'
         self.cursor.execute(query)
         result = self.cursor.fetchall()
         print("\n---\nPart 2, task 4:\n")
         print(tabulate(result, headers=["Users who have taken taxi:"]))
+
 
     # Find all types of transportation modes and count how many activities that are tagged with these transportation mode labels. 
     # Do not count the rows where the mode is null.
@@ -280,6 +283,41 @@ class MainProgram:
             toLoc = (result[trackpoint + 1][0], result[trackpoint + 1][1])
             totalDistance += haversine(fromLoc, toLoc) 
         print("User with id=112 walked", round(totalDistance), 'km in 2008')
+
+    def part2_task8(self):
+        """
+        Find the top 20 users who have gained the most altitude in meters.
+        Ignores invalid altitude values (-777).
+        Only sums altitudes if trackpoint_n.altitude > trackpoint_n-1.altitude
+        """
+
+        query = """
+                SELECT SubTable.user_id, SubTable.gained_altitude
+                FROM (
+                    SELECT Activity.user_id,
+                    SUM(
+                        CASE WHEN 
+                            TP1.altitude NOT LIKE '%-777' AND
+                            TP2.altitude NOT LIKE '%-777'
+                        THEN (TP1.altitude - TP2.altitude) * 0.0003048
+                        ELSE 0
+                        END)
+                        AS gained_altitude
+                    FROM TrackPoint AS TP1 
+                    INNER JOIN TrackPoint AS TP2 ON TP1.activity_id = TP2.activity_id AND TP1.id+1 = TP2.id
+                    INNER JOIN Activity ON Activity.id = TP1.activity_id AND TP2.activity_id
+                    WHERE TP1.altitude > TP2.altitude
+                    GROUP BY Activity.user_id
+                ) AS SubTable
+                ORDER BY gained_altitude DESC
+                LIMIT 20
+                """
+        
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+
+        print("\n---\nPart 2, Task 8:\n")
+        print(tabulate(result, headers=["Id", "Total meters gained per user"]))
         
     def task2_10(self):
         query = "SELECT DISTINCT Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.activity_id = Activity.id WHERE TrackPoint.lat BETWEEN 39.915 AND 39.918 AND TrackPoint.lon BETWEEN 116.396 AND 116.398"
@@ -295,6 +333,8 @@ class MainProgram:
         result = self.cursor.fetchall()
         print(tabulate(result, headers=["User id", "Most used transportation"]))
 
+
+
 def main():
     program = None
     try:
@@ -306,6 +346,7 @@ def main():
         program.part2_task5()
         program.part2_task6()
         program.part2_task7()
+        program.part2_task8()
         program.task2_10()
         program.task2_11()
 
