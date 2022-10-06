@@ -193,15 +193,14 @@ class MainProgram:
         print(tabulate(result, headers=["Users", "Activities", "Trackpoints"]))
 
         
-    def task2_2(self):
+    def part2_task2(self):
         query = "SELECT COUNT(id)/COUNT(DISTINCT user_id) FROM Activity"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
         print("\n---\nPart 2, task 2: \n")
         print(tabulate(result, headers=["Average number of activities per user"]))
 
-
-    def task2_3(self):
+    def part2_task3(self):
         query = "SELECT COUNT(id), user_id FROM Activity GROUP BY user_id ORDER BY COUNT(id) DESC LIMIT 20"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
@@ -319,14 +318,14 @@ class MainProgram:
         print("\n---\nPart 2, Task 8:\n")
         print(tabulate(result, headers=["Id", "Total meters gained per user"]))
         
-    def task2_10(self):
+    def part2_task10(self):
         query = "SELECT DISTINCT Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.activity_id = Activity.id WHERE TrackPoint.lat BETWEEN 39.915 AND 39.918 AND TrackPoint.lon BETWEEN 116.396 AND 116.398"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
         print("\n---\nPart 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
         print(tabulate(result, headers=["User id"]))
 
-    def task2_11(self):
+    def part2_task11(self):
         print("\n---\nPart 2, task 11: \nAll users with transportation_mode and their most used one")
         query = "WITH cte AS (SELECT user_id, transportation_mode, ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY COUNT(*) DESC) AS RowNumber, COUNT(*) AS NumberOfActivities FROM Activity WHERE transportation_mode IS NOT NULL GROUP BY user_id, transportation_mode) SELECT user_id, transportation_mode FROM cte WHERE RowNumber = 1"
         self.cursor.execute(query)
@@ -338,22 +337,22 @@ class MainProgram:
 def main():
     program = None
     try:
+        # Run queries:
+        
         program = MainProgram()
         program.part2_task1()        
-        program.task2_2()
-        program.task2_3()
+        program.part2_task2()
+        program.part2_task3()
         program.part2_task4()
         program.part2_task5()
         program.part2_task6()
         program.part2_task7()
         program.part2_task8()
-        program.task2_10()
-        program.task2_11()
+        program.part2_task10()
+        program.part2_task11()
 
-        # Create DB tables
+        # Create DB tables:
 
-        
-        
         # program.create_table(
         #     table_name="User",
         #     fields="""
