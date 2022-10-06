@@ -210,13 +210,19 @@ class MainProgram:
         print(tabulate(result, headers=["Transportation mode", "Number of activities tagged with each transportation mode:"]))
     
     # Find all users who have invalid activities, and the number of invalid activities per user.
-    def part2_task8(self):
-        query = "SELECT start_date_time, end_date_time, user_id, TrackPoint.Activity_id, TrackPoint.lat, TrackPoint.lon FROM Activity INNER JOIN TrackPoint ON Activity.id = TrackPoint.id WHERE (end_date_time - start_date_time) <= 5.0"
+    def part2_task9(self):
+        query = '''
+                    SELECT Activity.user_id, COUNT(DISTINCT(Activity.id))
+                    FROM Activity
+                    JOIN TrackPoint as tp1 ON tp1.activity_id = Activity.id
+                    JOIN TrackPoint as tp2 ON tp1.id + 1 = Activity.id + 1
+                    WHERE TIMESTAMPDIFF(MINUTE, tp1.date_time, tp2.date_time) > 5 OR TIMESTAMPDIFF(MINUTE, tp2.date_time, tp1.date_time) > 5
+                    GROUP BY Activity.user_id
+                '''
         self.cursor.execute(query)
         result = self.cursor.fetchall()
-        print("\n---\nPart 2, task 8:\n")
-        print(tabulate(result, headers=["Start time", "End time", "User id", "Activity id", "Latitude", "Longitude"]))
-    
+        print("\n---\nPart 2, task 9:\n")
+        print(tabulate(result, headers=["User id", "Number of invalid activities"]))
 
 
 def main():
@@ -228,7 +234,7 @@ def main():
         program.task2_3()
         program.part2_task4()
         program.part2_task5()
-        program.part2_task8()
+        program.part2_task9()
         # Create DB tables
 
         
