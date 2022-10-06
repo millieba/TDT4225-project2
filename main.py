@@ -245,6 +245,14 @@ class MainProgram:
         print(tabulate(result, headers=["Id", "Total meters gained per user"]))
 
 
+    def task2_8(self):
+        print("Part 2, task 8: \nTop 20 users who have gained the most altitude meters.")
+        query = "SELECT user_id FROM Activity"
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print(tabulate(result, headers=["User id", "Altitude"]))
+
+
 
 def main():
     program = None
