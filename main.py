@@ -182,11 +182,11 @@ class MainProgram:
     
 
     def task2_10(self):
-        query = "SELECT TrackPoint.lat, TrackPoint.lon, Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.id = Activity.id WHERE TrackPoint.lat BETWEEN 39.915 AND 39.917 AND TrackPoint.lon BETWEEN 116.396 AND 116.398"
+        query = "SELECT DISTINCT Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.activity_id = Activity.id WHERE TrackPoint.lat BETWEEN 39.915 AND 39.918 AND TrackPoint.lon BETWEEN 116.396 AND 116.398"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
         print("\n---\nPart 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
-        print(tabulate(result, headers=["Latitude", "Longitude", "User id"]))
+        print(tabulate(result, headers=["User id"]))
 
 
 def main():
