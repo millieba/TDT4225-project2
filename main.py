@@ -182,7 +182,6 @@ class MainProgram:
         print("\n---\nPart 2, task 2: \n")
         print(tabulate(result, headers=["Average number of activities per user"]))
 
-
     def task2_3(self):
         query = "SELECT COUNT(id), user_id FROM Activity GROUP BY user_id ORDER BY COUNT(id) DESC LIMIT 20"
         self.cursor.execute(query)
@@ -243,18 +242,28 @@ class MainProgram:
         result_b = self.cursor.fetchall()
         print("The year with the most recorded hours is not 2008, but", result_b[0][0], "with", result_b[0][1], "hours recorded.")
 
-
+    def task2_10(self):
+        query = "SELECT DISTINCT Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.activity_id = Activity.id WHERE TrackPoint.lat BETWEEN 39.915 AND 39.918 AND TrackPoint.lon BETWEEN 116.396 AND 116.398"
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
+        print(tabulate(result, headers=["User id"]))
 
 def main():
     program = None
     try:
         program = MainProgram()
-        program.part2_task1()
+
+        program.part2_task1()        
         program.task2_2()
         program.task2_3()
         program.part2_task4()
         program.part2_task5()
         program.part2_task6()
+        
+        program.task2_10()
+
+        
         # Create DB tables
 
         
