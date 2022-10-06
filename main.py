@@ -200,7 +200,6 @@ class MainProgram:
         print("\n---\nPart 2, task 2: \n")
         print(tabulate(result, headers=["Average number of activities per user"]))
 
-
     def task2_3(self):
         query = "SELECT COUNT(id), user_id FROM Activity GROUP BY user_id ORDER BY COUNT(id) DESC LIMIT 20"
         self.cursor.execute(query)
@@ -281,19 +280,27 @@ class MainProgram:
             toLoc = (result[trackpoint + 1][0], result[trackpoint + 1][1])
             totalDistance += haversine(fromLoc, toLoc) 
         print("User with id=112 walked", round(totalDistance), 'km in 2008')
-
+        
+    def task2_10(self):
+        query = "SELECT DISTINCT Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.activity_id = Activity.id WHERE TrackPoint.lat BETWEEN 39.915 AND 39.918 AND TrackPoint.lon BETWEEN 116.396 AND 116.398"
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
+        print(tabulate(result, headers=["User id"]))
 
 def main():
     program = None
     try:
         program = MainProgram()
-        program.part2_task1()
+
+        program.part2_task1()        
         program.task2_2()
         program.task2_3()
         program.part2_task4()
         program.part2_task5()
         program.part2_task6()
         program.part2_task7()
+        program.task2_10()
         # Create DB tables
 
         
