@@ -288,11 +288,17 @@ class MainProgram:
         print("\n---\nPart 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
         print(tabulate(result, headers=["User id"]))
 
+    def task2_11(self):
+        print("\n---\nPart 2, task 11: \nAll users with transportation_mode and their most used one")
+        query = "WITH cte AS (SELECT user_id, transportation_mode, ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY COUNT(*) DESC) AS RowNumber, COUNT(*) AS NumberOfActivities FROM Activity WHERE transportation_mode IS NOT NULL GROUP BY user_id, transportation_mode) SELECT user_id, transportation_mode FROM cte WHERE RowNumber = 1"
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print(tabulate(result, headers=["User id", "Most used transportation"]))
+
 def main():
     program = None
     try:
         program = MainProgram()
-
         program.part2_task1()        
         program.task2_2()
         program.task2_3()
@@ -301,6 +307,8 @@ def main():
         program.part2_task6()
         program.part2_task7()
         program.task2_10()
+        program.task2_11()
+
         # Create DB tables
 
         
