@@ -1,5 +1,6 @@
 from DbConnector import DbConnector
 from tabulate import tabulate
+from decouple import config
 import pandas as pd
 import os
 from tqdm import tqdm
@@ -216,7 +217,7 @@ def main():
         )
 
         # Insert data to the database
-        # program.insert_dataset(config('DATASET_PATH'))
+        program.insert_dataset(config('DATASET_PATH'))
 
     except Exception as e:
         print("ERROR: Failed to use database:", e)
