@@ -230,7 +230,7 @@ class MainProgram:
         result = self.cursor.fetchall()
         print("\n---\nPart 2, task 5:\n")
         print(tabulate(result, headers=["Transportation mode", "Number of activities tagged with each transportation mode:"]))
-
+    
     def part2_task6(self):
         # a) Find the year with the most activities. 
         # Note: We chose to place activities into years based on start_date_time. 
@@ -317,9 +317,24 @@ class MainProgram:
 
         print("\n---\nPart 2, Task 8:\n")
         print(tabulate(result, headers=["Id", "Total meters gained per user"]))
-        
+
+    # Find all users who have invalid activities, and the number of invalid activities per user.
+    def part2_task9(self):
+        query = '''
+                    SELECT Activity.user_id, COUNT(DISTINCT(Activity.id))
+                    FROM Activity
+                    INNER JOIN TrackPoint as TP1 ON TP1.activity_id = Activity.id
+                    INNER JOIN TrackPoint as TP2 ON TP2.activity_id = Activity.id AND TP1.id+1 = TP2.id
+                    WHERE TIMESTAMPDIFF(MINUTE, TP1.date_time, TP2.date_time) > 5 OR TIMESTAMPDIFF(MINUTE, TP2.date_time, TP1.date_time) > 5
+                    GROUP BY Activity.user_id
+                '''
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\n---\nPart 2, task 9:\n")
+        print(tabulate(result, headers=["User id", "Number of invalid activities"]))
+
     def part2_task10(self):
-        query = "SELECT DISTINCT Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.activity_id = Activity.id WHERE TrackPoint.lat BETWEEN 39.915 AND 39.918 AND TrackPoint.lon BETWEEN 116.396 AND 116.398"
+        query = "SELECT DISTINCT Activity.user_id FROM TrackPoint INNER JOIN Activity ON TrackPoint.activity_id = Activity.id WHERE TrackPoint.lat BETWEEN 39.915 AND 39.917 AND TrackPoint.lon BETWEEN 116.396 AND 116.398"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
         print("\n---\nPart 2, task 10: \nUsers who have tracked activity in the Forbidden City of Beijing.")
@@ -348,6 +363,7 @@ def main():
         program.part2_task6()
         program.part2_task7()
         program.part2_task8()
+        program.part2_task9()
         program.part2_task10()
         program.part2_task11()
 
